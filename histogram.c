@@ -65,6 +65,24 @@ void histogrammeRGB(rgb8 **img, long nrh, long nch, int *histogrammeR, int * his
     }
 }
 
+double euclidienneDistance(int* histogramme1,int* histogramme2){
+    double distance=0.0;
+    for(int i=0;i < 256 ; i++){
+        distance+=(histogramme1[i]-histogramme2[i])*(histogramme1[i]-histogramme2[i]);
+    }
+    distance=sqrt(distance);
+    return distance;
+}
+
+double bhattacharyyaDistance(int* histogramme1,int* histogramme2){
+    double distance=0.0;
+    for(int i=0;i < 256 ; i++){
+        distance+=sqrt(histogramme1[i]*histogramme2[i]);
+    }
+    distance=-log(distance);
+    return distance;
+}
+
 int main()
 {
 
@@ -90,6 +108,8 @@ int main()
     IRGB = LoadPPM_rgb8matrix("/home/amal/Documents/Master 2/Atelier Indexation d’images/archivePPMPGM/archive10ppm/arbre1.ppm", &nrl, &nrh, &ncl, &nch);
     histogrammeRGB(IRGB, nrh, nch, histogramR, histogramG, histogramB, file);
 
+    printf("euclidienneDistance :%f \n",euclidienneDistance(histogramR, histogramR));
+    printf("bhattacharyyaDistance :%f \n",bhattacharyyaDistance(histogramR, histogramR));
 
     free_bmatrix(I, nrl, nrh, ncl, nch);
     free_rgb8matrix(IRGB, nrl, nrh, ncl, nch);
