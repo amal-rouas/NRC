@@ -113,7 +113,7 @@ byte** binarization(byte** orig, byte threshold, int nrl, int nrh, int ncl, int 
     return transformed;
 }
 
-int edgePixels(byte** gradient, int nrl, int nrh, int ncl, int nch) {
+int pixelCounter(byte** gradient, int nrl, int nrh, int ncl, int nch) {
     int sum = 0, i = 0, j = 0;
     for(i=nrl+1 ; i<nrh ; i++) {
         for(j=ncl+1 ; j<nch ; j++) {
@@ -154,7 +154,7 @@ byte** convolution(byte** orig, int mask[3][3], int nrl, int nrh, int ncl, int n
     return transformed;
 }
 
-int EP_from_image(byte** img, int nrl, int nrh, int ncl, int nch) {
+int edgePixel(byte** img, int nrl, int nrh, int ncl, int nch) {
     int mask_gradX[3][3] = {{-1, 0, +1}, {-2, 0, +2}, {-1, 0, +1}};
     int mask_gradY[3][3] = {{-1, -2, -1}, {0, 0, 0}, {+1, +2, +1}};
 
@@ -163,7 +163,7 @@ int EP_from_image(byte** img, int nrl, int nrh, int ncl, int nch) {
     byte** gradient = gradientNorm(gradX, gradY, nrl, nrh, ncl, nch);
     byte** gradient_bin = binarization(gradient, 70, nrl, nrh, ncl, nch);
 
-    int nb = edgePixels(gradient_bin, nrl, nrh, ncl, nch);
+    int nb = pixelCounter(gradient_bin, nrl, nrh, ncl, nch);
 
     free_bmatrix(gradX, nrl, nrh, ncl, nch);
     free_bmatrix(gradY, nrl, nrh, ncl, nch);
@@ -183,7 +183,7 @@ int main()
     rgb8** IRGB;
 
     I = LoadPGM_bmatrix("cubesx3.pgm", &nrl, &nrh, &ncl, &nch);
-    printf("nombre de prixels du contours : %d \n", EP_from_image(I, nrl, nrh, ncl, nch));
+    printf("nombre de prixels du contours : %d \n", edgePixel(I, nrl, nrh, ncl, nch));
 
     file = fopen ("data.csv", "w");
 
