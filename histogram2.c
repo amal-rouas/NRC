@@ -65,6 +65,7 @@ void histogrammeRGB(rgb8 **img, long nrh, long nch, int *histogrammeR, int * his
     }
 }
 
+
 double euclidienneDistance(int* histogramme1,int* histogramme2){
     double distance=0.0;
     for(int i=0;i < 256 ; i++){
@@ -75,13 +76,34 @@ double euclidienneDistance(int* histogramme1,int* histogramme2){
 }
 
 double bhattacharyyaDistance(int* histogramme1,int* histogramme2){
-    double distance=0.0;
-    for(int i=0;i < 256 ; i++){
-        distance+=sqrt(histogramme1[i]*histogramme2[i]);
+    double distance = 0.0;
+    for (int i = 0; i < 256; i++) {
+        distance += sqrt(histogramme1[i] * histogramme2[i]);
     }
-    distance=-log(distance);
+    distance = -log(distance);
     return distance;
+
 }
+
+void colorRate(rgb8 **img, long nrl, long nrh, long ncl, long nch, double *rater, double *rateg, double *rateb) {
+    (*rater) = 0.0;
+    (*rateg) = 0.0;
+    (*rateb) = 0.0;
+    for (int i = 0; i < nrh-nrl; i++) {
+        for (int j = 0; j < nch-ncl; j++) {
+            (*rater) += img[i][j].r;
+            (*rateg) += img[i][j].g;
+            (*rateb) += img[i][j].b;
+        }
+    }
+    int total=((*rater) + (*rateg) + (*rateb));
+    (*rater) = (*rater) / total;
+    (*rateg) = (*rateg) / total;
+    (*rateb) = (*rateb) / total;
+
+}
+
+//-------------------------------------- main -----------------------------------
 
 int main()
 {
@@ -91,10 +113,12 @@ int main()
     FILE *file;
     byte** I;
     rgb8** IRGB;
+    double rater, rateg, rateb;
 
     I = LoadPGM_bmatrix("cubesx3.pgm", &nrl, &nrh, &ncl, &nch);
 
     file = fopen ("data.csv", "w");
+    fprintf(file,"nom; couleur; contour; tauxderouge; tauxdevert; tauxdebleu; moyennedugradient; histogramme\n");
 
     histogram =(int *)malloc(sizeof(int)*256);
     histogramR =(int *)malloc(sizeof(int)*256);
@@ -110,6 +134,10 @@ int main()
 
     printf("euclidienneDistance :%f \n",euclidienneDistance(histogramR, histogramR));
     printf("bhattacharyyaDistance :%f \n",bhattacharyyaDistance(histogramR, histogramR));
+
+    colorRate(IRGB, nrl, nrh, ncl, nch, &rater, &rateg, &rateb);
+    printf(" rater :%f\n rateg :%f\n rateb :%f \n", rater, rateg, rateb);
+
 
     free_bmatrix(I, nrl, nrh, ncl, nch);
     free_rgb8matrix(IRGB, nrl, nrh, ncl, nch);
