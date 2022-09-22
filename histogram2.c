@@ -36,7 +36,6 @@ int* histogramme(rgb8 **rgb8Img, long nrl, long nrh, long ncl, long nch) {
     return histogramme;
 }
 
-
 double euclidienneDistance(int* histogramme1,int* histogramme2){
     double distance=0.0;
     for(int i=0;i < 256 ; i++){
@@ -154,7 +153,7 @@ double normGradientAverage(byte** img, long nrl, long nrh, long ncl, long nch){
 
 //-------------------------------------- main -----------------------------------
 
-int main()
+/*int main()
 {
     long nrh, nrl, nch, ncl;
     int *histogram, *histogramR, *histogramG, *histogramB;
@@ -199,4 +198,4 @@ int main()
     // fclose(file);
 
     return 0;
-}
+}*/
