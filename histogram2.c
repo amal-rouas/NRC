@@ -9,7 +9,16 @@
 #define FILTER_WIDTH 3
 #define FILTER_HEIGHT 3
 
-void histogramme(byte **img, long nrh, long nch, int *histogramme, FILE *file) {
+int* histogramme(rgb8 **rgb8Img, long nrl, long nrh, long ncl, long nch) {
+
+    byte ** img = bmatrix(nrl, nrh, ncl, nch);
+    int *histogramme = (int *)malloc(sizeof(int)*256);
+
+    for(long i=0; i<=nrh; i++){
+        for(long j=0; j<=nch; j++){
+            img[i][j] =(byte)(0.3* rgb8Img[i][j].r + 0.59*rgb8Img[i][j].g + 0.11*rgb8Img[i][j].b);
+        }
+    }
 
     //initialise l'histogramme
     for (int i = 0; i < 256; i++) {
@@ -17,55 +26,14 @@ void histogramme(byte **img, long nrh, long nch, int *histogramme, FILE *file) {
     }
 
     //classifie l'image suivant les différents niveaux de gris
-    for (int j = 0; j <= nrh; j++) {
-        for (int k = 0; k <= nch; k++) {
+    for (int j = nrl; j <=nrh; j++) {
+        for (int k = ncl; k <=nch; k++) {
             int index = img[j][k];
             histogramme[index] = histogramme[index] + 1;
         }
     }
 
-    //sauvgarde de l'histogramme dans un fichier.csv
-    for(int i = 0; i < 256; i++)
-    {
-        // printf("%d : %d\n", i, histogramme[i]);
-        fprintf(file, "%d,", histogramme[i]);
-    }
-   
-}
-
-
-void histogrammeRGB(rgb8 **img, long nrh, long nch, int *histogrammeR, int * histogrammeG, int* histogrammeB, FILE *file) {
-
-    //initialise l'histogramme
-    for (int i = 0; i < 256; i++) {
-        histogrammeR[i] = 0;
-        histogrammeG[i] = 0;
-        histogrammeB[i] = 0;
-    }
-
-    //classifie l'image suivant les différents niveaux de gris
-    for (int j = 0; j <= nrh; j++) {
-        for (int k = 0; k <= nch; k++) {
-            int indexR = img[j][k].r;
-            int indexG = img[j][k].g;
-            int indexB = img[j][k].b;
-            histogrammeR[indexR] = histogrammeR[indexR] + 1;
-            histogrammeG[indexG] = histogrammeG[indexG] + 1;
-            histogrammeB[indexB] = histogrammeB[indexB] + 1;
-        }
-    }
- 
-    //sauvgarde de l'histogramme dans un fichier.csv
-    for(int i = 0; i < 256; i++)
-    {
-        // printf("%d : %d\n", i, histogrammeR[i]);
-        // printf("%d : %d\n", i, histogrammeG[i]);
-        // printf("%d : %d\n", i, histogrammeB[i]);
-
-        fprintf(file, "%d,", histogrammeR[i]);
-        fprintf(file, "%d,", histogrammeG[i]);
-        fprintf(file, "%d,", histogrammeB[i]);
-    }
+    return histogramme;
 }
 
 
@@ -177,7 +145,7 @@ double normGradientAverage(byte** img, long nrl, long nrh, long ncl, long nch){
         }
     }
 
-    average = average/(nrh*nch);
+    average = average/((nrh + 1) * (nch + 1));
 
     free_bmatrix(imgn, nrl, nrh, ncl, nch);
 
@@ -195,40 +163,40 @@ int main()
     rgb8** IRGB;
     double rater, rateg, rateb;
 
-    I = LoadPGM_bmatrix("cubesx3.pgm", &nrl, &nrh, &ncl, &nch);
-
-    file = fopen ("data.csv", "w");
-    fprintf(file,"nom; couleur; contour; tauxderouge; tauxdevert; tauxdebleu; moyennedugradient; histogramme\n");
 
     histogram =(int *)malloc(sizeof(int)*256);
-    histogramR =(int *)malloc(sizeof(int)*256);
-    histogramG =(int *)malloc(sizeof(int)*256);
-    histogramB =(int *)malloc(sizeof(int)*256);
+    IRGB = LoadPPM_rgb8matrix("archivePPMPGM/archive10ppm/arbre1.ppm", &nrl, &nrh, &ncl, &nch);
+    histogramme(IRGB,nrl, nrh, ncl, nch);
+    printf("%d %d %d %d\n", nrl, nrh, ncl, nch);
+
+    // file = fopen ("data.csv", "w");
+    // fprintf(file,"nom; couleur; contour; tauxderouge; tauxdevert; tauxdebleu; moyennedugradient; histogramme\n");
+
+    // histogramR =(int *)malloc(sizeof(int)*256);
+    // histogramG =(int *)malloc(sizeof(int)*256);
+    // histogramB =(int *)malloc(sizeof(int)*256);
 
 
-    histogramme(I, nrh, nch, histogram, file);
-    fputc(';', file);
+    // fputc(';', file);
 
-    printf("normGradientAverage :%f\n", normGradientAverage(I, nrl, nrh, ncl, nch));
+    // printf("normGradientAverage :%f\n", normGradientAverage(I, nrl, nrh, ncl, nch));
     
-    IRGB = LoadPPM_rgb8matrix("/home/amal/Documents/Master 2/Atelier Indexation d’images/archivePPMPGM/archive10ppm/arbre1.ppm", &nrl, &nrh, &ncl, &nch);
-    histogrammeRGB(IRGB, nrh, nch, histogramR, histogramG, histogramB, file);
 
-    printf("euclidienneDistance :%f \n",euclidienneDistance(histogramR, histogramR));
-    printf("bhattacharyyaDistance :%f \n",bhattacharyyaDistance(histogramR, histogramR));
+    // printf("euclidienneDistance :%f \n",euclidienneDistance(histogramR, histogramR));
+    // printf("bhattacharyyaDistance :%f \n",bhattacharyyaDistance(histogramR, histogramR));
 
-    colorRate(IRGB, nrl, nrh, ncl, nch, &rater, &rateg, &rateb);
-    printf(" rater :%f\n rateg :%f\n rateb :%f \n", rater, rateg, rateb);
+    // colorRate(IRGB, nrl, nrh, ncl, nch, &rater, &rateg, &rateb);
+    // printf(" rater :%f\n rateg :%f\n rateb :%f \n", rater, rateg, rateb);
 
 
 
-    free_bmatrix(I, nrl, nrh, ncl, nch);
-    free_rgb8matrix(IRGB, nrl, nrh, ncl, nch);
-    free(histogram);
-    free(histogramR);
-    free(histogramG);
-    free(histogramB);
-    fclose(file);
+    // free_bmatrix(I, nrl, nrh, ncl, nch);
+    // free_rgb8matrix(IRGB, nrl, nrh, ncl, nch);
+    // free(histogram);
+    // free(histogramR);
+    // free(histogramG);
+    // free(histogramB);
+    // fclose(file);
 
     return 0;
 }
