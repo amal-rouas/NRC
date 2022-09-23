@@ -119,13 +119,14 @@ int* histogramme(rgb8 **rgb8Img, long nrl, long nrh, long ncl, long nch) {
         }
     }
 
+    free_bmatrix(img, nrl, nrh, ncl, nch);
     return histogramme;
 }
 
 double euclidienneDistance(int* histogramme1,int* histogramme2){
     double distance=0.0;
     for(int i=0;i < 256 ; i++){
-        distance+=(histogramme1[i]-histogramme2[i])*(histogramme1[i]-histogramme2[i]);
+        distance+= pow((histogramme1[i]-histogramme2[i]), 2);
     }
     distance=sqrt(distance);
     return distance;
@@ -146,7 +147,7 @@ double bhattacharyyaDistance(int* histogramme1,int* histogramme2){
     for (int i = 0; i < 256; i++) {
         distance += sqrt(histogramme1[i] * histogramme2[i]);
     }
-    distance = sqrt(1 - (1 / (sqrt(mean1*mean2*255*255)))*distance);
+    distance = sqrt((1 - (1 / (sqrt(mean1*mean2*255*255)))) *distance);
     return distance;
 
 }
