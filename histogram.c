@@ -147,7 +147,7 @@ double bhattacharyyaDistance(int* histogramme1,int* histogramme2){
     for (int i = 0; i < 256; i++) {
         distance += sqrt(histogramme1[i] * histogramme2[i]);
     }
-    distance = sqrt((1 - (1 / (sqrt(mean1*mean2*255*255)))) *distance);
+    distance = sqrt(1 - (1 / (sqrt(mean1*mean2*255*255))) *distance);
     return distance;
 
 }
