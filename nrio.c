@@ -3472,7 +3472,6 @@ IMAGE_EXPORT(rgb8 **) LoadPPM_rgb8matrix(char *filename, long *nrl, long *nrh, l
 /* ---------------------------------------------------------------------------------------------- */
 {
   /* cette version ne lit plus que le type P6 */
-
   long height, width, gris;
   rgb8 **m;
   FILE *file;

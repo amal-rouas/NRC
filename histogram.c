@@ -132,11 +132,21 @@ double euclidienneDistance(int* histogramme1,int* histogramme2){
 }
 
 double bhattacharyyaDistance(int* histogramme1,int* histogramme2){
+
+    double mean1 = 0.0;
+    double mean2 = 0.0;
+    for(int i = 0; i < 256; i++){
+        mean1 += histogramme1[i];
+        mean2 += histogramme2[i];
+    }
+    mean1 = mean1/255;
+    mean2 = mean2/255;
+
     double distance = 0.0;
     for (int i = 0; i < 256; i++) {
         distance += sqrt(histogramme1[i] * histogramme2[i]);
     }
-    distance = -log(distance);
+    distance = sqrt(1 - (1 / (sqrt(mean1*mean2*255*255)))*distance);
     return distance;
 
 }
