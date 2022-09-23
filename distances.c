@@ -10,9 +10,12 @@ void indexPGM(char* filePath);
 void indexPPM(char* filePath);
 char *get_filename_ext(char *filename);
 
-FILE *fpt;
 
 int main() {
+FILE *fpt;
+
+fpt = fopen("comparison.csv", "w+");
+fprintf(fpt, "image: euclidian_dist: bhattacharyya_istance\n");
 
     // fpt = fopen("Results.csv", "w+");
     // fprintf(fpt, "nom, contour, tauxDeRouge, tauxDeVert, tauxDeBleu, moyenneDuGradient, histogramme\n");
@@ -66,21 +69,21 @@ void indexFolder(char* path) {
 
 void indexPPM(char* filePath) {
 
-    fprintf(fpt, "%s, %s, %s, %s, %s, %s, %s\n", filePath, filePath, filePath, filePath, filePath, filePath, filePath);
+    //fprintf(fpt, "%s, %s, %s, %s, %s, %s, %s\n", filePath, filePath, filePath, filePath, filePath, filePath, filePath);
 }
 
 void indexPGM(char* filePath) {
-    long nrh, nrl, nch, ncl;
-    byte** I;
-    I = LoadPGM_bmatrix(filePath, &nrl, &nrh, &ncl, &nch);
-    fprintf(fpt, "%s, %d, %s, %s, %s, %s, %s\n", 
-    filePath, // nom
-    edgePixelCounter(I, nrl, nrh, ncl, nch), // contours
-    filePath, // taux rouge
-    filePath, // taux vert
-    filePath, // taux bleu
-    filePath, // moy grad
-    filePath); // histogramme
+    // long nrh, nrl, nch, ncl;
+    // byte** I;
+    // I = LoadPGM_bmatrix(filePath, &nrl, &nrh, &ncl, &nch);
+    // fprintf(fpt, "%s, %d, %s, %s, %s, %s, %s\n", 
+    // filePath, // nom
+    // edgePixelCounter(I, nrl, nrh, ncl, nch), // contours
+    // filePath, // taux rouge
+    // filePath, // taux vert
+    // filePath, // taux bleu
+    // filePath, // moy grad
+    // filePath); // histogramme
 }
 
 char *get_filename_ext(char *filename) {
@@ -91,16 +94,18 @@ char *get_filename_ext(char *filename) {
 
 void get_filename(char *filename, char* fileName) {
     int index = strcspn(filename, ".");
-    char name[7];
+    char* name = malloc(sizeof(char) * 7);
     memset(name, '\0', sizeof(name));
     strncpy(name, filename, index+1);
     strcat(name, "jpg");
     strcpy(fileName, name);
+    free(name);
 }
 
 void distance_matrix(){
     char* path = "archivePPMPGM/archive500ppm";
 
+    FILE *fpt;
     fpt = fopen("comparison.csv", "w+");
     fprintf(fpt, "image, euclidian_dist, bhattacharyya_istance\n");
 
@@ -139,38 +144,43 @@ calculate_distance_for_all_images(){
     DIR * d = opendir(path);
     if(d==NULL) return;
     struct dirent * dir;
-    char filePath[255];
-    char name[7];
-
+    FILE *fpt;
+    fpt = fopen("comparison.csv", "a");
     while ((dir = readdir(d)) != NULL){
         if(dir-> d_type != DT_DIR) { 
+
+            char* filePath = malloc(sizeof(char) *255);
+            char* name = malloc(sizeof(char) *7);
             //file path
-            sprintf(filePath, "%s/%s", path, dir->d_name);
 
             //file name
             get_filename(dir->d_name, name);
-            printf("%s    %s   tztefgvrre \n", filePath, name);
+            sprintf(filePath, "%s/%s", path, dir->d_name);
 
-            calculate_distance_for_image(name, filePath);
+            calculate_distance_for_image(fpt, name, filePath);
+
+            free(filePath);
+            free(name);
             
         }
     }
     closedir(d);
 }
 
-calculate_distance_for_image(char* toComparName, char* ppmImageName){
+calculate_distance_for_image(FILE *fpt, char* toComparName, char* ppmImageName){
+
+
 
     char* path = "archivePPMPGM/archive500ppm";
     DIR * d = opendir(path);
     if(d==NULL) return;
     struct dirent * dir;
-    char filePath[255];
-            char name[7];
-
 
     while ((dir = readdir(d)) != NULL){
         if(dir-> d_type != DT_DIR) { 
 
+            char* filePath = malloc(sizeof(char) *255);
+            char* name = malloc(sizeof(char) *7);
             //file path
             sprintf(filePath, "%s/%s", path, dir->d_name);
 
@@ -192,7 +202,10 @@ calculate_distance_for_image(char* toComparName, char* ppmImageName){
                 double euc = euclidienneDistance(hist, hist1);
                 double bat = bhattacharyyaDistance(hist, hist1);
 
-                printf("%s %s : %f  %f\n", toComparName, name, euc, bat);
+                fprintf(fpt,"%s:%s:%f:%f\n", toComparName, name, euc, bat);
+
+                 free(filePath);
+                free(name);
         }
     }
     closedir(d);
